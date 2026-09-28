@@ -92,6 +92,22 @@
     $('#countdown').textContent = `${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;
     if (seconds===0) { $('.vote-box .primary-button').disabled = true; $('#aircraft-choice').disabled = true; }
   }
+  function renderLastResult(result) {
+    const card = $('.last-result-card');
+    if (!result) {
+      card.innerHTML='<h2 id="last-result-title">Последнее голосование</h2><p class="last-result-note">Завершённых голосований пока нет.</p>';
+      return;
+    }
+    const title=result.winners.length>1 ? 'Ничья в прошлом голосовании' : result.winners.length ? 'Победитель прошлого голосования' : 'Последнее голосование';
+    const ended=new Date(result.closedAtUtc).toLocaleString('ru-RU',{dateStyle:'short',timeStyle:'short'});
+    card.innerHTML=`<div class="last-result-heading"><div><h2 id="last-result-title">${title}</h2><p class="last-result-note">${esc(result.title)} · Завершено ${esc(ended)}</p></div><span class="count">Всего голосов: ${result.totalVotes}</span></div>`
+      +(result.winners.length ? `<div class="last-winners">${result.winners.map(a=>`<div class="last-winner">${aircraftImage(a)}<div><strong>${esc(a.name)}</strong><p class="last-result-note">${esc(nations[a.nation]||a.nation)} · BR ${a.battleRating.toFixed(1)}</p></div><span class="winner-votes">Голосов: ${a.votes}</span></div>`).join('')}</div>`
+        : '<p class="last-result-note">Голосов не было — победитель не определён.</p>');
+  }
+  async function refreshLastResult() {
+    try { renderLastResult(await api('/api/polls/latest-result')); }
+    catch { $('.last-result-card').innerHTML='<h2 id="last-result-title">Последнее голосование</h2><p class="last-result-note">Не удалось загрузить результат. Повторим автоматически.</p>'; }
+  }
   async function refreshPoll() {
     const active = await api('/api/polls/active');
     poll = active || (poll ? await api('/api/polls/' + poll.id) : null);
@@ -111,7 +127,7 @@
       catch(e) { message(e.message,true); }
       finally { submitting = false; await refreshPoll().catch(e=>message(e.message,true)); }
     };
-    const tick = async () => { try { await refreshPoll(); } catch(e) { message(e.message,true); $('.vote-box .primary-button').disabled=true; } finally { setTimeout(tick,2000); } };
+    const tick = async () => { try { await Promise.all([refreshPoll(),refreshLastResult()]); } catch(e) { message(e.message,true); $('.vote-box .primary-button').disabled=true; } finally { setTimeout(tick,2000); } };
     tick(); setInterval(updateCountdown,250);
   }
 

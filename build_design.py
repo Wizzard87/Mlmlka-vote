@@ -87,6 +87,7 @@ def vote_page():
       <button type="button" class="primary-button">{icon('check')}Проголосовать</button>
       <p class="helper">{icon('shield')}Один участник — один голос</p>
     </section>
+    <section class="last-result-card panel" aria-labelledby="last-result-title"><h2 id="last-result-title">Последнее голосование</h2><p class="last-result-note">Загрузка результата…</p></section>
     <div class="results-layout"><section aria-labelledby="ranking-title">
       <div class="section-heading"><h2 id="ranking-title">Рейтинг техники <span class="count">8</span></h2><span class="sort">{icon('sort')}По количеству голосов</span></div>
       <div class="ranking" role="table" aria-label="Рейтинг самолётов">
