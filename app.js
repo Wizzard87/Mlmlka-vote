@@ -14,7 +14,7 @@
   const notice = document.createElement('div'); notice.className = 'api-notice'; notice.setAttribute('role','status'); notice.hidden = true;
   $('main').prepend(notice);
   const auth = document.createElement('div'); auth.className = 'auth-strip';
-  auth.innerHTML = '<span id="account-label">Просмотр без входа</span><button id="login-button" class="outline-button" type="button">Войти через Discord</button>';
+  auth.innerHTML = '<span id="account-label">Просмотр без входа</span><button id="login-button" class="outline-button discord-login" type="button">Войти через Discord</button>';
   $('.intro').after(auth); $('.profile')?.remove();
   const message = (text, error = false) => { notice.textContent = text; notice.hidden = !text; notice.classList.toggle('error',error); };
   async function api(path, options = {}) {
@@ -37,6 +37,7 @@
     document.querySelectorAll('[data-admin-nav]').forEach(link => { link.hidden = !me?.isStreamer; });
     $('#account-label').textContent = me ? `${me.displayName}${me.isStreamer ? ' · Стример' : ''}` : 'Просмотр без входа';
     $('#login-button').textContent = me ? 'Выйти' : 'Войти через Discord';
+    $('#login-button').classList.toggle('discord-login', !me);
     if (admin) $('.admin-actions .primary-button').disabled = !me?.isStreamer;
   }
   async function login() {
