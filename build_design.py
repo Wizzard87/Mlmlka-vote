@@ -118,13 +118,13 @@ def admin_page():
         <div class="field-group wide"><span class="field-label">Тип самолёта</span><div class="segmented" aria-label="Тип самолёта"><button type="button">Все</button><button type="button" class="selected" aria-pressed="true">Реактивные</button><button type="button">Винтовые</button></div></div>
         <div class="field-group wide"><label class="check-row"><input type="checkbox" checked>Включать премиумную технику</label></div>
       </div><div class="filter-bottom"><span>Фильтры применены</span><button type="button">Сбросить</button></div></section><p class="filter-note">{icon('info')}Без ручного выбора участвуют все самолёты по фильтрам. «+ / −» — выбор отдельных самолётов.</p></aside>
-      <div class="admin-right"><section class="panel name-panel"><label class="field-label" for="poll-title">Название голосования</label><input class="text-input" id="poll-title" value="Mlmlka wt" maxlength="100"><p class="helper">Это название увидят участники голосования.</p></section>
+      <div class="admin-right"><div class="admin-actions"><p class="helper">{icon('info')}Новое голосование начнётся с нуля.<br>Текущее голосование будет завершено.</p><button class="primary-button" type="button">{icon('plus')}Открыть голосование</button></div>
+      <section class="panel name-panel"><label class="field-label" for="poll-title">Название голосования</label><input class="text-input" id="poll-title" value="Mlmlka wt" maxlength="100"><p class="helper">Это название увидят участники голосования.</p></section>
       <section class="panel"><div class="catalog-heading"><h2>Выбор техники <span class="count">1 324</span></h2><span class="selected-tag">{icon('check')}Выбрано 5</span></div>
       <label class="search-field catalog-search">{icon('search')}<input type="search" placeholder="Найти самолёт по названию…" aria-label="Поиск техники"></label>
       <div class="catalog-head"><span class="tech-label">ТЕХНИКА</span><span class="nation-label">НАЦИЯ</span><span>BR</span><span></span></div>
       {''.join(rows)}
       <div class="catalog-footer"><span>Показано 8 самолётов</span><div class="pagination"><button type="button" aria-label="Предыдущая страница">{icon('left')}</button><button type="button" aria-label="Следующая страница">{icon('right')}</button></div></div></section>
-      <div class="admin-actions"><p class="helper">{icon('info')}Новое голосование начнётся с нуля.<br>Текущее голосование будет завершено.</p><button class="primary-button" type="button">{icon('plus')}Открыть голосование</button></div>
       </div></div>
     ''')
 

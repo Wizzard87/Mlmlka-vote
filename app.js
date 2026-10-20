@@ -9,7 +9,10 @@
     return uid ? `<img class="${cls}" src="https://static.encyclopedia.warthunder.com/slots/${encodeURIComponent(uid)}.png" alt="${esc(a.name)}" loading="lazy">` : '<span class="aircraft-symbol" aria-hidden="true">✈</span>';
   };
   const admin = location.pathname.endsWith('admin.html');
-  let token = sessionStorage.getItem('warden.session'), me = null, poll = null, myVote = null, submitting = false;
+  const savedToken = localStorage.getItem('warden.session') || sessionStorage.getItem('warden.session');
+  if (savedToken) localStorage.setItem('warden.session', savedToken);
+  sessionStorage.removeItem('warden.session');
+  let token = savedToken, me = null, poll = null, myVote = null, submitting = false;
   let deadline = 0;
   const notice = document.createElement('div'); notice.className = 'api-notice'; notice.setAttribute('role','status'); notice.hidden = true;
   $('main').prepend(notice);
@@ -27,7 +30,7 @@
     const body = await response.json().catch(() => ({}));
     if (!response.ok) {
       const error = new Error(body.message || `Ошибка API: ${response.status}`); error.status = response.status; error.code = body.code;
-      if (response.status === 401) { token = null; me = null; sessionStorage.removeItem('warden.session'); renderAccount(); }
+      if (response.status === 401) { token = null; me = null; localStorage.removeItem('warden.session'); renderAccount(); }
       throw error;
     }
     return body;
@@ -56,7 +59,7 @@
     if (admin) $('.admin-actions .primary-button').disabled = !me?.isStreamer;
   }
   async function login() {
-    if (me) { await post('/api/auth/logout', {}); token = null; me = null; sessionStorage.removeItem('warden.session'); location.reload(); return; }
+    if (me) { await post('/api/auth/logout', {}); token = null; me = null; localStorage.removeItem('warden.session'); location.reload(); return; }
     if (location.protocol === 'https:' && !base.startsWith('https://')) throw new Error('Для входа нужен HTTPS-адрес API.');
     const verifier = [...crypto.getRandomValues(new Uint8Array(32))].map(x=>x.toString(16).padStart(2,'0')).join('');
     const hash = await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier));
@@ -73,7 +76,7 @@
       if (fragment.has('login_error')) { sessionStorage.removeItem('warden.verifier'); throw new Error('Вход через Discord отменён или недоступен. Попробуйте снова.'); }
       const verifier = sessionStorage.getItem('warden.verifier'); sessionStorage.removeItem('warden.verifier');
       const session = await post('/api/auth/session', {ticket:fragment.get('login_ticket'), verifier});
-      token = session.accessToken; sessionStorage.setItem('warden.session',token);
+      token = session.accessToken; localStorage.setItem('warden.session',token);
       const target = sessionStorage.getItem('warden.return'); sessionStorage.removeItem('warden.return');
       if (target === 'admin.html' && !admin) { location.replace('admin.html'); return; }
     }
