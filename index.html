@@ -7,11 +7,12 @@
       </nav><div class="profile"><span class="avatar">W</span><span class="profile-name">Mlmlka wt</span><svg viewBox="0 0 24 24" aria-hidden="true" class="chevron"><path d="m7 10 5 5 5-5"/></svg></div>
     </div></header><main class="shell">
     <div class="overline"><span class="eyebrow">ВЫБОР СООБЩЕСТВА</span><span class="poll-id">Голосование № 004</span></div>
-    <div class="heading-line"><h1>Голосование за технику</h1><span class="status"><span class="dot"></span>Идёт голосование</span></div>
+    <div class="heading-line"><h1>Голосование за технику</h1></div>
+    <div class="poll-status-banner closed" id="poll-status" role="status" aria-live="polite">ГОЛОСОВАНИЕ ЗАКРЫТО</div>
     <p class="intro">Выбирайте любимый самолёт. Поднимайте его в рейтинге.</p>
     <section class="vote-box" aria-label="Ваш голос">
-      <label class="field-label" for="aircraft-choice">За какую технику голосуем?</label>
-      <div class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true" ><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><select id="aircraft-choice"><option selected disabled value="">Выберите самолёт из списка…</option><option>J-11A · Китай · BR 13.3</option><option>F-16A · США · BR 12.3</option><option>MiG-29 (9-13) · СССР · BR 13.0</option><option>JAS39A · Швеция · BR 13.0</option><option>Mirage 2000C-S5 · Франция · BR 12.3</option><option>F-15A · США · BR 12.7</option><option>Su-27 · СССР · BR 13.0</option><option>MiG-21SMT · СССР · BR 10.3</option></select></div>
+      <label class="field-label" for="aircraft-search">Найдите самолёт для голосования</label>
+      <div class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true" ><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input type="search" id="aircraft-search" list="aircraft-options" placeholder="Начните вводить название…" autocomplete="off" aria-label="Поиск самолёта"><datalist id="aircraft-options"></datalist><input type="hidden" id="aircraft-choice"></div>
       <button type="button" class="primary-button"><svg viewBox="0 0 24 24" aria-hidden="true" ><path d="m5 12 4 4L19 6"/></svg>Проголосовать</button>
       <p class="helper"><svg viewBox="0 0 24 24" aria-hidden="true" ><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3Z"/><path d="m8 12 3 3 5-6"/></svg>Один участник — один голос</p>
     </section>

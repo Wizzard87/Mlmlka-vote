@@ -6,3 +6,10 @@
 #login-button.discord-login:hover{background:#5730bd;border-color:#5730bd;box-shadow:0 7px 20px #6941d947}
 #login-button.discord-login:focus-visible{outline:3px solid #b7a0f3;outline-offset:4px}
 @media(max-width:600px){.auth-strip{flex-wrap:wrap}#login-button.discord-login{width:100%;min-width:0;min-height:56px;font-size:16px;padding:15px 20px}}
+
+.poll-status-banner{display:flex;align-items:center;justify-content:center;min-height:64px;margin-top:18px;padding:14px 20px;border:2px solid;border-radius:12px;font-size:clamp(20px,3vw,30px);font-weight:800;letter-spacing:.06em;text-align:center;line-height:1.2}
+.poll-status-banner.open{color:#176b38;background:#e9f8ed;border-color:#91d5a3}
+.poll-status-banner.closed{color:#9d302e;background:#fff0ee;border-color:#edaaa4}
+.search-field input[type=search]{min-width:0;color:#4c5945}
+.search-field input[type=search]::placeholder{color:#929a88}
+@media(max-width:600px){.poll-status-banner{min-height:54px;margin-top:14px;padding:12px;font-size:19px;letter-spacing:.035em}}

@@ -33,6 +33,21 @@
     return body;
   }
   const post = (path, body) => api(path, {method:'POST', body:JSON.stringify(body)});
+  const aircraftLabel = a => `${a.name} · ${nations[a.nation] || a.nation} · BR ${a.battleRating.toFixed(1)}`;
+  function syncAircraftSearch() {
+    const search = $('#aircraft-search'), choice = $('#aircraft-choice');
+    if (!search || !choice) return;
+    const aircraft = poll?.aircraft || [];
+    $('#aircraft-options').innerHTML = aircraft.map(a=>`<option value="${esc(aircraftLabel(a))}"></option>`).join('');
+    const selected = aircraft.find(a=>String(a.id)===choice.value);
+    if (myVote !== null) {
+      const voted = aircraft.find(a=>a.id===myVote);
+      choice.value = voted ? String(voted.id) : '';
+      search.value = voted ? aircraftLabel(voted) : '';
+    } else if (selected) search.value = aircraftLabel(selected);
+    else if (!aircraft.some(a=>aircraftLabel(a)===search.value)) choice.value = '';
+    search.disabled = !poll || poll.status !== 'open' || myVote !== null;
+  }
   function renderAccount() {
     document.querySelectorAll('[data-admin-nav]').forEach(link => { link.hidden = !me?.isStreamer; });
     $('#account-label').textContent = me ? `${me.displayName}${me.isStreamer ? ' · Стример' : ''}` : 'Просмотр без входа';
@@ -68,15 +83,16 @@
 
   const tableHeader = '<div class="table-head" role="row"><span>№</span><span class="tech-label">ТЕХНИКА</span><span class="nation-label">НАЦИЯ</span><span class="br-label">BR</span><span class="votes-label">ГОЛОСА</span></div>';
   function renderPoll() {
-    const select = $('#aircraft-choice'), button = $('.vote-box .primary-button');
-    const previous = select.value;
+    const button = $('.vote-box .primary-button');
     $('#ranking-title .count').textContent = poll?.aircraft.length || 0;
     $('.poll-id').textContent = poll ? 'Голосование · ' + poll.id.slice(0,8) : 'Нет активного голосования';
-    $('.status').textContent = poll?.status === 'open' ? 'Идёт голосование' : 'Голосование закрыто';
+    const isOpen = poll?.status === 'open';
+    const status = $('#poll-status');
+    status.textContent = isOpen ? 'ГОЛОСОВАНИЕ ОТКРЫТО' : 'ГОЛОСОВАНИЕ ЗАКРЫТО';
+    status.classList.toggle('open', isOpen);
+    status.classList.toggle('closed', !isOpen);
     $('h1').textContent = poll?.title || 'Голосование за технику';
-    select.innerHTML = '<option value="">Выберите самолёт из списка…</option>' + (poll?.aircraft || []).map(a=>`<option value="${a.id}">${esc(a.name)} · ${esc(nations[a.nation] || a.nation)} · BR ${a.battleRating.toFixed(1)}</option>`).join('');
-    select.value = myVote === null ? previous : String(myVote);
-    select.disabled = !poll || poll.status !== 'open' || myVote !== null;
+    syncAircraftSearch();
     button.disabled = !poll || poll.status !== 'open' || myVote !== null || submitting;
     button.textContent = myVote !== null ? 'Голос принят' : me ? 'Проголосовать' : 'Войти и проголосовать';
     $('.ranking').innerHTML = tableHeader + (poll?.aircraft || []).map((a,i)=>`<div class="plane-row ${i===0 && a.votes>0 ? 'leader' : ''}" role="row"><span class="rank-number">${i+1}</span>${aircraftImage(a)}<div><div class="plane-name">${esc(a.name)}</div><div class="plane-meta">${esc(a.rank)} ранг</div></div><span class="nation">${esc(nations[a.nation]||a.nation)}</span><span class="br">${a.battleRating.toFixed(1)}</span><div class="vote-data"><span class="vote-number">${a.votes}</span><span class="vote-share">${poll.totalVotes ? (100*a.votes/poll.totalVotes).toFixed(1) : 0}%</span><div class="progress"><span style="width:${poll.aircraft[0].votes ? a.votes/poll.aircraft[0].votes*100 : 0}%"></span></div></div></div>`).join('');
@@ -91,7 +107,7 @@
     if (admin || !$('#countdown')) return;
     const seconds = poll?.status === 'open' ? Math.max(0,Math.ceil((deadline-Date.now())/1000)) : 0;
     $('#countdown').textContent = `${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;
-    if (seconds===0) { $('.vote-box .primary-button').disabled = true; $('#aircraft-choice').disabled = true; }
+    if (seconds===0) { $('.vote-box .primary-button').disabled = true; $('#aircraft-search').disabled = true; }
   }
   function renderLastResult(result) {
     const card = $('.last-result-card');
@@ -118,11 +134,15 @@
   }
   async function startPublic() {
     renderPoll();
+    $('#aircraft-search').addEventListener('input',()=>{
+      const match=(poll?.aircraft||[]).find(a=>aircraftLabel(a)=== $('#aircraft-search').value);
+      $('#aircraft-choice').value=match ? String(match.id) : '';
+    });
     $('.vote-box .primary-button').onclick = async () => {
       if (!me) { await login().catch(e=>message(e.message,true)); return; }
       if (!poll || submitting) return;
       const id = Number($('#aircraft-choice').value);
-      if (!id) { message('Выберите самолёт.',true); return; }
+      if (!id || !(poll.aircraft||[]).some(a=>a.id===id)) { message('Выберите самолёт из результатов поиска.',true); return; }
       submitting = true; $('.vote-box .primary-button').disabled = true;
       try { await post(`/api/polls/${poll.id}/votes`,{aircraftId:id}); message('Ваш голос принят. Спасибо!'); }
       catch(e) { message(e.message,true); }
@@ -138,13 +158,13 @@
     $('.catalog-heading .count').textContent = '…';
     document.querySelectorAll('.catalog-row').forEach(e=>e.remove());
     $('.name-panel .helper').textContent = 'Название и длительность нового голосования.';
-    $('.name-panel').insertAdjacentHTML('beforeend','<div class="duration-field"><label class="field-label" for="duration">Длительность, секунд</label><input class="text-input" id="duration" type="number" min="1" max="86400" step="1" value="60"><small>60 секунд = 1 минута</small></div>');
+    $('.name-panel').insertAdjacentHTML('beforeend','<div class="duration-field"><label class="field-label" for="duration">Длительность, секунд</label><input class="text-input" id="duration" type="number" min="1" max="86400" step="1" value="300"><small>300 секунд = 5 минут</small></div>');
     $('#nation').innerHTML = '<option value="">Все нации</option>' + Object.entries(nations).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
     $('#rank').innerHTML = '<option value="">Все ранги</option>' + ['I','II','III','IV','V','VI','VII','VIII','IX'].map(r=>`<option>${r}</option>`).join('');
     for (const id of ['min-br','max-br']) {
       $('#'+id).innerHTML = MlmlkaVoting.battleRatings.map(br=>`<option value="${br}">${br}</option>`).join('');
     }
-    $('#min-br').value='1.0'; $('#max-br').value='14.7';
+    $('#min-br').value='1.0'; $('#max-br').value='12.0';
     let jet='';
     const typeButtons=[...document.querySelectorAll('.segmented button')];
     typeButtons.forEach((b,i)=>{b.classList.toggle('selected',i===0);b.setAttribute('aria-pressed',String(i===0));b.onclick=()=>{jet=['','true','false'][i];typeButtons.forEach(x=>{x.classList.toggle('selected',x===b);x.setAttribute('aria-pressed',String(x===b));});reload();};});
@@ -183,7 +203,7 @@
     };
     catalogPanel.onclick=e=>{const b=e.target.closest('[data-aircraft]');if(!b)return;const id=Number(b.dataset.aircraft);selected.has(id)?selected.delete(id):selected.set(id,rows.find(a=>a.id===id));draw();};
     const pages=[...document.querySelectorAll('.pagination button')];pages[0].onclick=()=>{offset=Math.max(0,offset-limit);load();};pages[1].onclick=()=>{offset+=limit;load();};
-    $('.filter-bottom button').onclick=()=>{$('#nation').value='';$('#rank').value='';$('#min-br').value='1.0';$('#max-br').value='14.7';$('.check-row input').checked=true;$('.catalog-search input').value='';typeButtons[0].click();};
+    $('.filter-bottom button').onclick=()=>{$('#nation').value='';$('#rank').value='';$('#min-br').value='1.0';$('#max-br').value='12.0';$('.check-row input').checked=true;$('.catalog-search input').value='';typeButtons[0].click();};
     const activeBox=document.createElement('div');activeBox.className='panel active-poll';$('.admin-right').prepend(activeBox);
     async function refreshActive(){
       const current=await api('/api/polls/active');

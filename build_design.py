@@ -76,14 +76,14 @@ def vote_page():
           {nation(country,flag)}<span class="br" aria-label="Боевой рейтинг {br}">{br}</span>
           <div class="vote-data" role="cell"><span class="vote-number">{votes}</span><span class="vote-share">{percent}%</span><div class="progress" aria-hidden="true"><span style="width:{votes/342*100:.1f}%"></span></div></div>
         </div>''')
-    options = ''.join(f'<option>{name} · {country} · BR {br}</option>' for name,country,flag,br,*rest in PLANES)
     return page('Голосование за технику', 'vote', f'''
     <div class="overline"><span class="eyebrow">ВЫБОР СООБЩЕСТВА</span><span class="poll-id">Голосование № 004</span></div>
-    <div class="heading-line"><h1>Голосование за технику</h1><span class="status"><span class="dot"></span>Идёт голосование</span></div>
+    <div class="heading-line"><h1>Голосование за технику</h1></div>
+    <div class="poll-status-banner closed" id="poll-status" role="status" aria-live="polite">ГОЛОСОВАНИЕ ЗАКРЫТО</div>
     <p class="intro">Выбирайте любимый самолёт. Поднимайте его в рейтинге.</p>
     <section class="vote-box" aria-label="Ваш голос">
-      <label class="field-label" for="aircraft-choice">За какую технику голосуем?</label>
-      <div class="search-field">{icon('search')}<select id="aircraft-choice"><option selected disabled value="">Выберите самолёт из списка…</option>{options}</select></div>
+      <label class="field-label" for="aircraft-search">Найдите самолёт для голосования</label>
+      <div class="search-field">{icon('search')}<input type="search" id="aircraft-search" list="aircraft-options" placeholder="Начните вводить название…" autocomplete="off" aria-label="Поиск самолёта"><datalist id="aircraft-options"></datalist><input type="hidden" id="aircraft-choice"></div>
       <button type="button" class="primary-button">{icon('check')}Проголосовать</button>
       <p class="helper">{icon('shield')}Один участник — один голос</p>
     </section>
@@ -114,7 +114,7 @@ def admin_page():
       <div class="admin-layout"><aside><section class="panel"><h2 class="panel-title">{icon('sliders')}Фильтры техники</h2><div class="panel-body">
         <div class="field-group"><label class="field-label" for="nation">Нация</label><select class="select-input" id="nation"><option>Все нации</option>{nations}</select></div>
         <div class="field-group"><label class="field-label" for="rank">Ранг</label><select class="select-input" id="rank"><option>Все ранги</option><option>I — III</option><option>IV — VI</option><option selected>VII — IX</option></select></div>
-        <div class="field-group wide"><span class="field-label">Боевой рейтинг <span style="font-weight:400;color:#9ba58e">/ Air RB</span></span><div class="double-fields"><div><label class="range-caption" for="min-br">От</label><select class="select-input" id="min-br" aria-label="Минимальный BR"><option>1.0</option></select></div><div><label class="range-caption" for="max-br">До</label><select class="select-input" id="max-br" aria-label="Максимальный BR"><option>14.7</option></select></div></div></div>
+        <div class="field-group wide"><span class="field-label">Боевой рейтинг <span style="font-weight:400;color:#9ba58e">/ Air RB</span></span><div class="double-fields"><div><label class="range-caption" for="min-br">От</label><select class="select-input" id="min-br" aria-label="Минимальный BR"><option>1.0</option></select></div><div><label class="range-caption" for="max-br">До</label><select class="select-input" id="max-br" aria-label="Максимальный BR"><option>12.0</option></select></div></div></div>
         <div class="field-group wide"><span class="field-label">Тип самолёта</span><div class="segmented" aria-label="Тип самолёта"><button type="button">Все</button><button type="button" class="selected" aria-pressed="true">Реактивные</button><button type="button">Винтовые</button></div></div>
         <div class="field-group wide"><label class="check-row"><input type="checkbox" checked>Включать премиумную технику</label></div>
       </div><div class="filter-bottom"><span>Фильтры применены</span><button type="button">Сбросить</button></div></section><p class="filter-note">{icon('info')}Без ручного выбора участвуют все самолёты по фильтрам. «+ / −» — выбор отдельных самолётов.</p></aside>
